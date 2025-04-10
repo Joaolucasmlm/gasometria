@@ -1,6 +1,4 @@
 import streamlit as st 
-import base64
-from fpdf import FPDF
 import os
 
 # Caminho local para a fonte (sem necessidade de download)
@@ -23,58 +21,69 @@ K = st.number_input("K⁺ (mEq/L)", step=0.1)
 Cl = st.number_input("Cl⁻ (mEq/L)", step=0.1)
 lactato = st.number_input("Lactato (mmol/L) [opcional]", step=0.1, format="%.1f")
 
-# Checkboxes para contexto clínico
-st.subheader("🩺 Contexto Clínico")
-context_dpo = st.checkbox("DPOC")
-context_vomitos = st.checkbox("Vômitos prolongados")
-context_sepse = st.checkbox("Suspeita de sepse")
-context_diarreia = st.checkbox("Diarreia intensa")
-
 resultado = []
 
 if st.button("Analisar"):
     st.subheader("📊 Resultado da Análise")
+
+    dist_secundario = ""
+    caracterizacao = ""
+
     if pH < 7.35:
         if HCO3 < 22 and pCO2 > 45:
-            dist = "Distúrbio misto (provável acidose metabólica + respiratória)"
+            dist = "Distúrbio triplo: acidose metabólica + acidose respiratória com compensação inadequada"
+            caracterizacao = "Três distúrbios coexistem: acidose metabólica (HCO₃⁻ < 22), acidose respiratória (pCO₂ > 45) e ausência de compensação eficaz, levando a pH < 7,35."
         elif HCO3 < 22:
             dist = "Acidose metabólica"
+            if pCO2 < 35:
+                dist_secundario = "com alcalose respiratória"
+                caracterizacao = "Distúrbio misto com acidose metabólica e hiperventilação (alcalose respiratória)."
         elif pCO2 > 45:
             dist = "Acidose respiratória"
+            if HCO3 > 26:
+                dist_secundario = "com alcalose metabólica"
+                caracterizacao = "Distúrbio misto com acidose respiratória e alcalose metabólica."
         else:
             dist = "Acidose não específica"
     elif pH > 7.45:
         if HCO3 > 26 and pCO2 < 35:
-            dist = "Distúrbio misto (provável alcalose metabólica + respiratória)"
+            dist = "Distúrbio triplo: alcalose metabólica + alcalose respiratória com compensação inadequada"
+            caracterizacao = "Três distúrbios coexistem: alcalose metabólica (HCO₃⁻ > 26), alcalose respiratória (pCO₂ < 35) e falha compensatória com pH > 7,45."
         elif HCO3 > 26:
             dist = "Alcalose metabólica"
+            if pCO2 > 45:
+                dist_secundario = "com acidose respiratória"
+                caracterizacao = "Distúrbio misto com alcalose metabólica e retenção de CO₂ (acidose respiratória)."
         elif pCO2 < 35:
             dist = "Alcalose respiratória"
+            if HCO3 < 22:
+                dist_secundario = "com acidose metabólica"
+                caracterizacao = "Distúrbio misto com alcalose respiratória e acidose metabólica associada."
         else:
             dist = "Alcalose não específica"
     else:
         if HCO3 > 26 and pCO2 > 45:
-            dist = "pH normal: possível distúrbio misto (alcalose metabólica + acidose respiratória)"
+            dist = "pH normal: distúrbio misto (alcalose metabólica + acidose respiratória)"
+            caracterizacao = "Dois distúrbios contrários coexistem e se compensam, mantendo pH normal."
         elif HCO3 < 22 and pCO2 < 35:
-            dist = "pH normal: possível distúrbio misto (acidose metabólica + alcalose respiratória)"
+            dist = "pH normal: distúrbio misto (acidose metabólica + alcalose respiratória)"
+            caracterizacao = "Dois distúrbios opostos se equilibram, resultando em pH normal."
         else:
-            dist = "Provável compensação ou normalidade"
+            dist = "pH normal: compensação adequada ou estado normal"
 
     resultado.append(f"Distúrbio principal: {dist}")
+    if dist_secundario:
+        resultado.append(f"Distúrbio secundário associado: {dist_secundario}")
+    if caracterizacao:
+        resultado.append(f"Caracterização: {caracterizacao}")
 
     AG = Na - (Cl + HCO3)
     resultado.append(f"Ânion gap: {AG:.1f} mEq/L")
 
     if AG > 12:
-        if HCO3 < 22:
-            if lactato > 2.2:
-                resultado.append("AG aumentado: possível acidose lática")
-            else:
-                resultado.append("AG aumentado: acidose metabólica com AG aumentado")
-        else:
-            resultado.append("AG discretamente elevado, mas HCO₃⁻ alto — sem acidose aparente")
+        resultado.append("AG aumentado: acidose metabólica com AG aumentado")
     elif AG < 8:
-        resultado.append("AG reduzido: possível hipoproteinemia ou erro analítico")
+        resultado.append("AG reduzido: considerar hipoproteinemia ou erro analítico")
     else:
         resultado.append("AG normal")
 
@@ -85,74 +94,8 @@ if st.button("Analisar"):
             pCO2_exp = 0.7 * HCO3 + 21
         resultado.append(f"pCO₂ esperado: {pCO2_exp:.1f} mmHg")
         if abs(pCO2 - pCO2_exp) > 5:
-            resultado.append("Compensação inadequada: possível distúrbio misto")
-
-    resultado.append("")
-    resultado.append("Sugestão terapêutica:")
-
-    if "Acidose metabólica" in dist:
-        if lactato > 2.2 or context_sepse:
-            resultado.append("→ Tratar causa base da acidose lática: hidratação, antibióticos, suporte hemodinâmico.")
-        elif context_diarreia:
-            resultado.append("→ Repor bicarbonato e líquidos se acidose grave. Tratar diarreia.")
-        else:
-            resultado.append("→ Considerar reposição de bicarbonato se pH < 7.1. Corrigir causas renais ou digestivas.")
-
-    elif "Alcalose metabólica" in dist:
-        if context_vomitos:
-            resultado.append("→ Repor volume com SF 0,9% + KCl. Tratar causa dos vômitos.")
-        else:
-            resultado.append("→ Corrigir perdas, suspender diuréticos, usar SF 0,9% com KCl.")
-
-    elif "Acidose respiratória" in dist:
-        if context_dpo:
-            resultado.append("→ Avaliar suporte ventilatório. Oxigenoterapia com cautela. Tratar exacerbação do DPOC.")
-        else:
-            resultado.append("→ Tratar causa base. Avaliar necessidade de suporte ventilatório.")
-
-    elif "Alcalose respiratória" in dist:
-        resultado.append("→ Tratar hiperventilação: dor, ansiedade, hipóxia. Orientar respiração controlada.")
-
-    elif "mist" in dist.lower():
-        resultado.append("→ Corrigir causas combinadas. Monitorar eletrólitos e gasometria seriada.")
-
-    if K < 3.5:
-        resultado.append("→ Hipocalemia: Repor potássio. Monitorar ECG.")
-    elif K > 5.0:
-        resultado.append("→ Hipercalemia: Dieta pobre em K⁺. Medidas de emergência se > 6.0.")
-
-    if Cl < 98:
-        resultado.append("→ Hipocloremia: Reposição com SF 0,9%. Corrigir perdas.")
-    elif Cl > 106:
-        resultado.append("→ Hipercloremia: Considerar troca de fluidos por soluções balanceadas.")
-
-    if lactato > 2.2:
-        resultado.append("→ Lactato elevado: Tratar causa de hipoperfusão. Hidratação e suporte circulatório.")
+            resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
 
     for linha in resultado:
-        if "→" in linha:
-            st.markdown(f"<div style='background-color:#f9f9f9;color:black;padding:8px;border-left:5px solid #0a58ca;'>{linha}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background-color:#f9f9f9;color:black;padding:8px;border-left:5px solid #0a58ca;'>{linha}</div>", unsafe_allow_html=True)
 
-        else:
-            st.markdown(f"**{linha}**")
-
-    # Gerar PDF com suporte a Unicode
-    st.subheader("📄 Exportar relatório")
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.add_font("DejaVu", "", FONT_PATH, uni=True)
-    pdf.set_font("DejaVu", "", 12)
-    pdf.cell(0, 10, txt="Relatório Gasométrico", ln=True, align="C")
-    pdf.ln()
-
-    for linha in resultado:
-        pdf.multi_cell(0, 10, txt=linha)
-
-    pdf_output = "relatorio_gasometria.pdf"
-    pdf.output(pdf_output)
-
-    with open(pdf_output, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        href = f'<a href="data:application/octet-stream;base64,{base64_pdf}" download="relatorio_gasometria.pdf">📥 Baixar PDF</a>'
-        st.markdown(href, unsafe_allow_html=True)
