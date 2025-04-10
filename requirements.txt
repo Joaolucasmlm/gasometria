@@ -1,3 +1,6 @@
 streamlit
 fpdf
 matplotlib
+authlib
+gspread
+oauth2client
