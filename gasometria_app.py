@@ -23,6 +23,38 @@ lactato = st.number_input("Lactato (mmol/L) [opcional]", step=0.1, format="%.1f"
 
 resultado = []
 
+    # Análise de distúrbios hidroeletrolíticos
+    disturbios_eletroliticos = []
+    if Na < 135:
+        disturbios_eletroliticos.append("Hiponatremia")
+    elif Na > 145:
+        disturbios_eletroliticos.append("Hipernatremia")
+    if Na < 120:
+        disturbios_eletroliticos.append("Hiponatremia grave")
+    if Na > 155:
+        disturbios_eletroliticos.append("Hipernatremia grave")
+
+    if K < 2.5:
+        disturbios_eletroliticos.append("Hipocalemia grave")
+    if K > 6.0:
+        disturbios_eletroliticos.append("Hipercalemia grave")
+
+    if Cl < 90:
+        disturbios_eletroliticos.append("Hipocloremia grave")
+    if Cl > 115:
+        disturbios_eletroliticos.append("Hipercloremia grave")
+
+    if lactato > 2.2:
+        disturbios_eletroliticos.append("Lactato elevado: possível acidose lática")    if K < 3.5:
+        disturbios_eletroliticos.append("Hipocalemia")
+    elif K > 5.0:
+        disturbios_eletroliticos.append("Hipercalemia")
+
+    if Cl < 98:
+        disturbios_eletroliticos.append("Hipocloremia")
+    elif Cl > 106:
+        disturbios_eletroliticos.append("Hipercloremia")
+
 if st.button("Analisar"):
     st.subheader("📊 Resultado da Análise")
 
@@ -96,6 +128,11 @@ if st.button("Analisar"):
         if abs(pCO2 - pCO2_exp) > 5:
             resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
 
+        if disturbios_eletroliticos:
+        resultado.append("")
+        resultado.append("🔍 Distúrbios hidroeletrolíticos identificados:")
+        for d in disturbios_eletroliticos:
+            resultado.append(f"• {d}")
+
     for linha in resultado:
         st.markdown(f"<div style='background-color:#f9f9f9;color:black;padding:8px;border-left:5px solid #0a58ca;'>{linha}</div>", unsafe_allow_html=True)
-
