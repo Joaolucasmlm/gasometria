@@ -2,10 +2,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 import re
-from authlib.integrations.requests_client import OAuth2Session
-import requests
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import pandas as pd
 from urllib.parse import urlparse
@@ -13,71 +9,8 @@ from urllib.parse import urlparse
 st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
 
 # =========================
-# LOGIN GOOGLE (OAuth2)
-# =========================
-CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
-CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
-REDIRECT_URI = "https://gasometria-joao.streamlit.app/"
-AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
-TOKEN_URL = "https://oauth2.googleapis.com/token"
-USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
-
-def login_com_google():
-    if "token" not in st.session_state:
-        oauth = OAuth2Session(
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-            scope="openid email profile",
-            redirect_uri=REDIRECT_URI,
-        )
-
-        query_params = st.query_params
-        if "code" not in query_params:
-            auth_url = oauth.create_authorization_url(AUTH_URL)[0]
-            st.markdown(f"[🔐 Clique aqui para fazer login com sua conta Google]({auth_url})")
-            st.stop()
-
-        code = query_params["code"]
-        full_url = f"{REDIRECT_URI}?code={code}"
-
-        token = oauth.fetch_token(
-            TOKEN_URL,
-            code=code,
-            authorization_response=full_url
-        )
-        st.session_state["token"] = token
-
-    oauth = OAuth2Session(CLIENT_ID, CLIENT_SECRET, token=st.session_state["token"])
-    user_info = oauth.get(USERINFO_URL).json()
-    return user_info
-
-user = login_com_google()
-st.success(f"👋 Olá, {user['name']}! Você está autenticado.")
-st.write(f"📧 Email: {user['email']}")
-
-# =========================
-# CONEXÃO COM GOOGLE SHEETS
-# =========================
-scope = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
-creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gspread"], scope)
-client = gspread.authorize(creds)
-sheet = client.open_by_key("1jxxU7nHKJABA0DXYQ5SQWqZ47CAW4m3O01R465spBfU").worksheet("dados")
-
-# Cria cabeçalhos se a planilha estiver vazia
-if sheet.row_count == 0 or not any(sheet.row_values(1)):
-    sheet.insert_row(["data", "email", "nome", "idade", "leito", "resultado"], 1)
-
-# =========================
-# CAMPOS DO PACIENTE
-# =========================
-nome_paciente = st.text_input("Nome do paciente")
-idade = st.text_input("Idade")
-leito = st.text_input("Leito")
-
 # Idioma
+# =========================
 idioma = st.selectbox("Idioma / Language", ["Português", "English"])
 modo_estudante = st.checkbox("Modo estudante" if idioma == "Português" else "Student mode")
 
@@ -117,25 +50,6 @@ T = {
     }
 }[idioma]
 
-# Atualiza salvamento com campos adicionais
-def salvar_no_sheets(email, resultado_txt):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    linha = [timestamp, email, nome_paciente, idade, leito, resultado_txt]
-    sheet.append_row(linha)
-
-# Atualiza visualização com os novos campos
-def exibir_historico(email):
-    dados = sheet.get_all_records()
-    df = pd.DataFrame(dados)
-    historico = df[df['email'] == email]
-    if not historico.empty:
-        st.subheader("📜 Histórico de análises")
-        st.dataframe(historico.drop(columns=['email']))
-    else:
-        st.info("Nenhum resultado salvo encontrado para este usuário.")
-
-if st.button("📄 Ver histórico de análises salvas"):
-    exibir_historico(user['email'])
 
 
 
