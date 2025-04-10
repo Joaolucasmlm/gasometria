@@ -8,6 +8,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import pandas as pd
+from urllib.parse import urlparse
 
 st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
 
@@ -37,10 +38,12 @@ def login_com_google():
             st.stop()
 
         code = query_params["code"]
+        full_url = f"{REDIRECT_URI}?code={code}"
+
         token = oauth.fetch_token(
             TOKEN_URL,
             code=code,
-            authorization_response = st.request.url
+            authorization_response=full_url
         )
         st.session_state["token"] = token
 
@@ -117,6 +120,7 @@ T = {
         "grafico": "Acid-base graph"
     }
 }[idioma]
+
 
 # Entrada com suporte a vírgula
 
