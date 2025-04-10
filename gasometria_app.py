@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import os
 import re
 
+st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
+
 # Idioma
 idioma = st.selectbox("Idioma / Language", ["Português", "English"])
 modo_estudante = st.checkbox("Modo estudante" if idioma == "Português" else "Student mode")
