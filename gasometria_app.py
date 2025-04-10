@@ -2,8 +2,66 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 import re
+from authlib.integrations.requests_client import OAuth2Session
+import requests
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
 
 st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
+
+# =========================
+# LOGIN GOOGLE (OAuth2)
+# =========================
+CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
+CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
+REDIRECT_URI = "https://gasometria-joaopaulomr.streamlit.app/"
+AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
+TOKEN_URL = "https://oauth2.googleapis.com/token"
+USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+
+def login_com_google():
+    if "token" not in st.session_state:
+        oauth = OAuth2Session(
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            scope="openid email profile",
+            redirect_uri=REDIRECT_URI,
+        )
+
+        if "code" not in st.experimental_get_query_params():
+            auth_url = oauth.create_authorization_url(AUTH_URL)[0]
+            st.markdown(f"[🔐 Clique aqui para fazer login com sua conta Google]({auth_url})")
+            st.stop()
+
+        code = st.experimental_get_query_params()["code"][0]
+        token = oauth.fetch_token(
+            TOKEN_URL,
+            code=code,
+            authorization_response=st.experimental_get_url()
+        )
+        st.session_state["token"] = token
+
+    oauth = OAuth2Session(CLIENT_ID, CLIENT_SECRET, token=st.session_state["token"])
+    user_info = oauth.get(USERINFO_URL).json()
+    return user_info
+
+user = login_com_google()
+st.success(f"👋 Olá, {user['name']}! Você está autenticado.")
+st.write(f"📧 Email: {user['email']}")
+
+# =========================
+# CONEXÃO COM GOOGLE SHEETS
+# =========================
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("gspread_credentials.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("gasometria").worksheet("dados")
+
+def salvar_no_sheets(email, resultado_txt):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    linha = [timestamp, email, resultado_txt]
+    sheet.append_row(linha)
 
 # Idioma
 idioma = st.selectbox("Idioma / Language", ["Português", "English"])
@@ -44,8 +102,6 @@ T = {
         "grafico": "Acid-base graph"
     }
 }[idioma]
-
-
 # Entrada com suporte a vírgula
 
 def input_decimal(label, **kwargs):
