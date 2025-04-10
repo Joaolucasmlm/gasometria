@@ -191,7 +191,7 @@ def grafico_acido_base():
     ax.axhspan(35, 45, color='blue', alpha=0.1, label="pCO2 normal")
     if pH and pCO2:
         ax.plot(pH, pCO2, 'ro', label='Paciente')
-        ax.annotate("Você", (pH, pCO2), textcoords="offset points", xytext=(5,5), ha='left')
+        ax.annotate("Paciente", (pH, pCO2), textcoords="offset points", xytext=(5,5), ha='left')
     ax.legend()
     st.subheader(T["grafico"])
     st.pyplot(fig)
