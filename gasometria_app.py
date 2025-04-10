@@ -7,6 +7,7 @@ import requests
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import pandas as pd
 
 st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
 
@@ -29,12 +30,13 @@ def login_com_google():
             redirect_uri=REDIRECT_URI,
         )
 
-        if "code" not in st.experimental_get_query_params():
+        query_params = st.query_params
+        if "code" not in query_params:
             auth_url = oauth.create_authorization_url(AUTH_URL)[0]
             st.markdown(f"[🔐 Clique aqui para fazer login com sua conta Google]({auth_url})")
             st.stop()
 
-        code = st.experimental_get_query_params()["code"][0]
+        code = query_params["code"]
         token = oauth.fetch_token(
             TOKEN_URL,
             code=code,
@@ -62,6 +64,19 @@ def salvar_no_sheets(email, resultado_txt):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     linha = [timestamp, email, resultado_txt]
     sheet.append_row(linha)
+
+def exibir_historico(email):
+    dados = sheet.get_all_records()
+    df = pd.DataFrame(dados)
+    historico = df[df['email'] == email]
+    if not historico.empty:
+        st.subheader("📜 Histórico de análises")
+        st.dataframe(historico.drop(columns=['email']))
+    else:
+        st.info("Nenhum resultado salvo encontrado para este usuário.")
+
+if st.button("📄 Ver histórico de análises salvas"):
+    exibir_historico(user['email'])
 
 # Idioma
 idioma = st.selectbox("Idioma / Language", ["Português", "English"])
@@ -102,6 +117,7 @@ T = {
         "grafico": "Acid-base graph"
     }
 }[idioma]
+
 # Entrada com suporte a vírgula
 
 def input_decimal(label, **kwargs):
