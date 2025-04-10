@@ -218,16 +218,23 @@ def grafico_acido_base():
 
 if st.button(T["botao"]):
     if entradas_validas():
-        classificar_eletrolitos()
-        avaliar_disturbio_acido_base()
-        if disturbios_eletroliticos:
-            resultado.append("Distúrbios hidroeletrolíticos identificados:" if idioma == "Português" else "Identified electrolyte disturbances:")
-            for d in disturbios_eletroliticos:
-                resultado.append(f"- {d}")
-        st.subheader(T["resultado"])
-        output = "\n".join(resultado)
-        st.text_area("Resultado:" if idioma == "Português" else "Result:", output, height=300)
-        st.download_button(T["baixar"], data=output, file_name="resultado_gasometria.txt")
-        grafico_acido_base()
+        erros_internos = verificar_inconsistencias()
+        if erros_internos:
+            st.error("🚨 Inconsistência nos dados! Verifique os valores inseridos:")
+            for erro in erros_internos:
+                st.write(f"• {erro}")
+        else:
+            classificar_eletrolitos()
+            avaliar_disturbio_acido_base()
+            if disturbios_eletroliticos:
+                resultado.append("Distúrbios hidroeletrolíticos identificados:" if idioma == "Português" else "Identified electrolyte disturbances:")
+                for d in disturbios_eletroliticos:
+                    resultado.append(f"- {d}")
+            st.subheader(T["resultado"])
+            output = "\n".join(resultado)
+            st.text_area("Resultado:" if idioma == "Português" else "Result:", output, height=300)
+            st.download_button(T["baixar"], data=output, file_name="resultado_gasometria.txt")
+            grafico_acido_base()
     else:
         st.warning(T["erro"])
+
