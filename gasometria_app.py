@@ -45,8 +45,6 @@ T = {
     }
 }[idioma]
 
-st.set_page_config(page_title=T["titulo"], layout="centered")
-st.title(T["titulo"])
 
 # Entrada com suporte a vírgula
 
