@@ -104,7 +104,7 @@ if st.button("Analisar"):
             dist = "pH normal: compensação adequada ou estado normal"
 
     resultado.append(f"Distúrbio principal: {dist}")
-    if dist_secundario:
+    if tipo_disturbio in ["misto", "triplo"] and dist_secundario:
         resultado.append(f"Distúrbio secundário associado: {dist_secundario}")
     if caracterizacao:
         resultado.append(f"Caracterização: {caracterizacao}")
