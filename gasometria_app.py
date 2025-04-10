@@ -61,24 +61,9 @@ if st.button("Analisar"):
     dist_secundario = ""
     caracterizacao = ""
 
-    # Classificação do tipo de distúrbio
-    if "triplo" in dist.lower():
-        tipo_disturbio = "triplo"
-    elif "misto" in dist.lower():
-        tipo_disturbio = "misto"
-    else:
-        tipo_disturbio = "simples"
-
     if pH < 7.35:
         if HCO3 < 22 and pCO2 > 45:
-            
-        # Classificação do tipo de distúrbio
-        if "triplo" in dist.lower():
-            tipo_disturbio = "triplo"
-        elif "misto" in dist.lower():
-            tipo_disturbio = "misto"
-        else:
-            tipo_disturbio = "simples"
+            dist = "Distúrbio triplo: acidose metabólica + acidose respiratória com compensação inadequada"
             caracterizacao = "Três distúrbios coexistem: acidose metabólica (HCO₃⁻ < 22), acidose respiratória (pCO₂ > 45) e ausência de compensação eficaz, levando a pH < 7,35."
         elif HCO3 < 22:
             dist = "Acidose metabólica"
@@ -117,6 +102,14 @@ if st.button("Analisar"):
             caracterizacao = "Dois distúrbios opostos se equilibram, resultando em pH normal."
         else:
             dist = "pH normal: compensação adequada ou estado normal"
+
+    # Classificação do tipo de distúrbio
+    if "triplo" in dist.lower():
+        tipo_disturbio = "triplo"
+    elif "misto" in dist.lower():
+        tipo_disturbio = "misto"
+    else:
+        tipo_disturbio = "simples"
 
     resultado.append(f"Distúrbio principal: {dist}")
     if tipo_disturbio in ["misto", "triplo"] and dist_secundario:
