@@ -16,7 +16,7 @@ st.set_page_config(page_title="Analisador de Gasometria", layout="centered")
 # =========================
 CLIENT_ID = st.secrets["GOOGLE_CLIENT_ID"]
 CLIENT_SECRET = st.secrets["GOOGLE_CLIENT_SECRET"]
-REDIRECT_URI = "https://gasometria-joaopaulomr.streamlit.app/"
+REDIRECT_URI = "https://gasometria-joao.streamlit.app/"
 AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
