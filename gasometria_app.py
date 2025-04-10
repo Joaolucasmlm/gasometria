@@ -75,6 +75,26 @@ disturbios_eletroliticos = []
 def entradas_validas():
     return all(x is not None for x in [pH, pCO2, HCO3, Na, K, Cl])
 
+def verificar_inconsistencias():
+    erros = []
+
+    if pH < 6.8 or pH > 7.8:
+        erros.append("pH fora dos limites compatíveis com a vida.")
+    if pCO2 < 10 or pCO2 > 100:
+        erros.append("pCO₂ fora dos limites fisiológicos.")
+    if HCO3 < 5 or HCO3 > 45:
+        erros.append("HCO₃⁻ fora dos limites fisiológicos.")
+
+    if pH < 7.35 and pCO2 < 35 and HCO3 >= 22:
+        erros.append("Acidose com pCO₂ baixo e HCO₃ normal: incompatível.")
+    if pH > 7.45 and pCO2 > 45 and HCO3 <= 26:
+        erros.append("Alcalose com pCO₂ alto e HCO₃ normal: incompatível.")
+    if 7.35 <= pH <= 7.45 and (pCO2 < 20 or pCO2 > 70 or HCO3 < 15 or HCO3 > 35):
+        erros.append("Valores extremos com pH normal: revisar entrada.")
+
+    return erros
+
+
 def explicar(texto):
     if modo_estudante:
         st.info(texto)
