@@ -61,6 +61,14 @@ if st.button("Analisar"):
     dist_secundario = ""
     caracterizacao = ""
 
+    # Classificação do tipo de distúrbio
+    if "triplo" in dist.lower():
+        tipo_disturbio = "triplo"
+    elif "misto" in dist.lower():
+        tipo_disturbio = "misto"
+    else:
+        tipo_disturbio = "simples"
+
     if pH < 7.35:
         if HCO3 < 22 and pCO2 > 45:
             dist = "Distúrbio triplo: acidose metabólica + acidose respiratória com compensação inadequada"
