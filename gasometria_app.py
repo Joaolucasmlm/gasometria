@@ -40,7 +40,7 @@ def login_com_google():
         token = oauth.fetch_token(
             TOKEN_URL,
             code=code,
-            authorization_response=st.experimental_get_url()
+            authorization_response = st.request.url
         )
         st.session_state["token"] = token
 
