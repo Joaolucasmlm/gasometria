@@ -127,6 +127,10 @@ if st.button("Analisar"):
         resultado.append(f"pCO₂ esperado: {pCO2_exp:.1f} mmHg")
         if abs(pCO2 - pCO2_exp) > 5:
             resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
+            if pCO2 < pCO2_exp:
+                dist_secundario = "com alcalose respiratória"
+            elif pCO2 > pCO2_exp:
+                dist_secundario = "com acidose respiratória"
 
     if disturbios_eletroliticos:
         resultado.append("")
