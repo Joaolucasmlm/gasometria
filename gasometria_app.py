@@ -22,78 +22,38 @@ Cl = st.number_input("Cl⁻ (mEq/L)", step=0.1)
 lactato = st.number_input("Lactato (mmol/L) [opcional]", step=0.1, format="%.1f")
 
 resultado = []
+disturbios_eletroliticos = []
 
 # Análise de distúrbios hidroeletrolíticos
-" +
-        "disturbios_eletroliticos = []
-" +
-        "if Na < 135:
+if Na < 135:
     disturbios_eletroliticos.append("Hiponatremia")
 elif Na > 145:
     disturbios_eletroliticos.append("Hipernatremia")
-" +
-        "if Na < 120:
+if Na < 120:
     disturbios_eletroliticos.append("Hiponatremia grave")
-" +
-        "if Na > 155:
+if Na > 155:
     disturbios_eletroliticos.append("Hipernatremia grave")
-" +
-        "if K < 2.5:
+
+if K < 2.5:
     disturbios_eletroliticos.append("Hipocalemia grave")
-" +
-        "if K > 6.0:
+if K > 6.0:
     disturbios_eletroliticos.append("Hipercalemia grave")
-" +
-        "if K < 3.5:
+if K < 3.5:
     disturbios_eletroliticos.append("Hipocalemia")
 elif K > 5.0:
     disturbios_eletroliticos.append("Hipercalemia")
-" +
-        "if Cl < 90:
+
+if Cl < 90:
     disturbios_eletroliticos.append("Hipocloremia grave")
-" +
-        "if Cl > 115:
+if Cl > 115:
     disturbios_eletroliticos.append("Hipercloremia grave")
-" +
-        "if Cl < 98:
+if Cl < 98:
     disturbios_eletroliticos.append("Hipocloremia")
 elif Cl > 106:
     disturbios_eletroliticos.append("Hipercloremia")
-" +
-        "if lactato > 2.2:
+
+if lactato > 2.2:
     disturbios_eletroliticos.append("Lactato elevado: possível acidose lática")
-
-    # Análise de distúrbios hidroeletrolíticos
-    disturbios_eletroliticos = []
-    if Na < 135:
-        disturbios_eletroliticos.append("Hiponatremia")
-    elif Na > 145:
-        disturbios_eletroliticos.append("Hipernatremia")
-    if Na < 120:
-        disturbios_eletroliticos.append("Hiponatremia grave")
-    if Na > 155:
-        disturbios_eletroliticos.append("Hipernatremia grave")
-
-    if K < 2.5:
-        disturbios_eletroliticos.append("Hipocalemia grave")
-    if K > 6.0:
-        disturbios_eletroliticos.append("Hipercalemia grave")
-
-    if Cl < 90:
-        disturbios_eletroliticos.append("Hipocloremia grave")
-    if Cl > 115:
-        disturbios_eletroliticos.append("Hipercloremia grave")
-
-    if lactato > 2.2:
-        disturbios_eletroliticos.append("Lactato elevado: possível acidose lática")    if K < 3.5:
-        disturbios_eletroliticos.append("Hipocalemia")
-    elif K > 5.0:
-        disturbios_eletroliticos.append("Hipercalemia")
-
-    if Cl < 98:
-        disturbios_eletroliticos.append("Hipocloremia")
-    elif Cl > 106:
-        disturbios_eletroliticos.append("Hipercloremia")
 
 if st.button("Analisar"):
     st.subheader("📊 Resultado da Análise")
@@ -169,13 +129,6 @@ if st.button("Analisar"):
             resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
 
     if disturbios_eletroliticos:
-        resultado.append("")
-        resultado.append("🔍 Distúrbios hidroeletrolíticos identificados:")
-        for d in disturbios_eletroliticos:
-            resultado.append(f"• {d}")
-            resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
-
-        if disturbios_eletroliticos:
         resultado.append("")
         resultado.append("🔍 Distúrbios hidroeletrolíticos identificados:")
         for d in disturbios_eletroliticos:
