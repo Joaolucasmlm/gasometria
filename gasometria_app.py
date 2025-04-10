@@ -59,7 +59,7 @@ st.write(f"📧 Email: {user['email']}")
 # CONEXÃO COM GOOGLE SHEETS
 # =========================
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("gspread_credentials.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gspread"], scope)
 client = gspread.authorize(creds)
 sheet = client.open("gasometria").worksheet("dados")
 
