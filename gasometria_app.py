@@ -181,14 +181,13 @@ def avaliar_disturbio_acido_base():
         resultado.append(f"Delta gap: {delta_ag:.1f} | Delta-HCO3: {delta_hco3:.1f} | Delta-ratio: {delta_ratio:.2f}")
         explicar("Delta ratio = (AG - 12) / (24 - HCO3). Pode sugerir distúrbio adicional.")
         if delta_ratio < 0.4:
-            if delta_ratio < 0.4:
-            resultado.append("Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)")\")
+            resultado.append("Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)"))
         elif delta_ratio < 0.8:
-            resultado.append(\"Delta-ratio baixo: possível acidose mista\")
+            resultado.append("Delta-ratio baixo: possível acidose mista")
         elif delta_ratio <= 2.0:
-            resultado.append(\"Delta-ratio normal: AG aumentado isolado (ex: cetoacidose)\")
+            resultado.append("Delta-ratio normal: AG aumentado isolado (ex: cetoacidose)")\")
         else:
-            resultado.append(\"Delta-ratio alto: AG aumentado + alcalose metabólica coexistente\")
+            resultado.append("Delta-ratio alto: AG aumentado + alcalose metabólica coexistente")
 
     if \"acidose metabólica\" in disturbios and lactato and lactato > 4:
         resultado.append(\"Possível acidose lática (lactato > 4 mmol/L)\")
