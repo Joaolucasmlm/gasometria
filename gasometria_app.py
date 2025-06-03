@@ -160,13 +160,7 @@ def avaliar_disturbio_acido_base():
         resultado.append(f"HCO3 esperado ({fase}): {hco3_esp:.1f} mEq/L")
         if abs(HCO3 - hco3_esp) > 3:
             resultado.append("Compensação inadequada: considerar distúrbio misto ou crônico agudizado")
-        elif "alcalose" in ' '.join(disturbios):
-            if delta_pco2 <= 10:
-                hco3_esp = 24 - 2 * delta_pco2 / 10
-            else:
-                hco3_esp = 24 - 5 * delta_pco2 / 10
-            resultado.append(f"HCO3 esperado: {hco3_esp:.1f} mEq/L")
-
+        
     if AG > 12:
         resultado.append("AG aumentado: acidose metabólica com AG aumentado")
     elif AG < 8:
@@ -181,11 +175,11 @@ def avaliar_disturbio_acido_base():
         resultado.append(f"Delta gap: {delta_ag:.1f} | Delta-HCO3: {delta_hco3:.1f} | Delta-ratio: {delta_ratio:.2f}")
         explicar("Delta ratio = (AG - 12) / (24 - HCO3). Pode sugerir distúrbio adicional.")
         if delta_ratio < 0.4:
-            resultado.append("Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)"))
+            resultado.append("Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)")
         elif delta_ratio < 0.8:
             resultado.append("Delta-ratio baixo: possível acidose mista")
         elif delta_ratio <= 2.0:
-            resultado.append("Delta-ratio normal: AG aumentado isolado (ex: cetoacidose)")\")
+            resultado.append("Delta-ratio normal: AG aumentado isolado (ex: cetoacidose)")
         else:
             resultado.append("Delta-ratio alto: AG aumentado + alcalose metabólica coexistente")
 
@@ -197,8 +191,8 @@ def avaliar_disturbio_acido_base():
         resultado.append(\"Sugestivo de acidose respiratória crônica compensada (ex: DPOC)\")
 
     be = 0.93 * (HCO3 - 24.4) + (14.83 * (pH - 7.4))
-    resultado.append(f\"Excesso de base (estimado): {be:.1f} mEq/L\")
-    explicar(\"Excesso de base estimado usando fórmula de Siggaard-Andersen.\")
+    resultado.append(f"Excesso de base (estimado): {be:.1f} mEq/L")
+    explicar("Excesso de base estimado usando fórmula de Siggaard-Andersen.")
 
 def grafico_acido_base():
     fig, ax = plt.subplots()
