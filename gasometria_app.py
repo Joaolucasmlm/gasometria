@@ -183,11 +183,15 @@ def avaliar_disturbio_acido_base():
         else:
             resultado.append("Delta-ratio alto: AG aumentado + alcalose metabólica coexistente")
 
-    if 'acidose metabólica' in disturbios and lactato and lactato > 4:
-    if \"alcalose metabólica\" in disturbios and Cl < 95:
-        resultado.append(\"Possível alcalose metabólica hipoclorêmica (ex: vômitos)\")
-    if \"acidose respiratória\" in disturbios and HCO3 > 30 and pH < 7.35:
-        resultado.append(\"Sugestivo de acidose respiratória crônica compensada (ex: DPOC)\")
+if 'acidose metabólica' in disturbios and lactato and lactato > 4:
+    resultado.append("Possível acidose lática (lactato > 4 mmol/L)")
+
+if 'alcalose metabólica' in disturbios and Cl < 95:
+    resultado.append("Possível alcalose metabólica hipoclorêmica (ex: vômitos)")
+
+if 'acidose respiratória' in disturbios and HCO3 > 30 and pH < 7.35:
+    resultado.append("Sugestivo de acidose respiratória crônica compensada (ex: DPOC)")
+
 
     be = 0.93 * (HCO3 - 24.4) + (14.83 * (pH - 7.4))
     resultado.append(f"Excesso de base (estimado): {be:.1f} mEq/L")
