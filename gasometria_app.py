@@ -183,8 +183,7 @@ def avaliar_disturbio_acido_base():
         else:
             resultado.append("Delta-ratio alto: AG aumentado + alcalose metabólica coexistente")
 
-    if \"acidose metabólica\" in disturbios and lactato and lactato > 4:
-        resultado.append(\"Possível acidose lática (lactato > 4 mmol/L)\")
+    if 'acidose metabólica' in disturbios and lactato and lactato > 4:
     if \"alcalose metabólica\" in disturbios and Cl < 95:
         resultado.append(\"Possível alcalose metabólica hipoclorêmica (ex: vômitos)\")
     if \"acidose respiratória\" in disturbios and HCO3 > 30 and pH < 7.35:
