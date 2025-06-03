@@ -92,6 +92,19 @@ def classificar_eletrolitos():
         disturbios_eletroliticos.append("Lactato elevado: possível acidose lática")
 
 def avaliar_disturbio_acido_base():
+    def compensacao_respiratoria(pCO2, tipo, fase):
+        delta = abs(pCO2 - 40)
+        if tipo == "acidose":
+            return 24 + (1 if fase == "aguda" else 3.5) * (delta / 10)
+        elif tipo == "alcalose":
+            return 24 - (2 if fase == "aguda" else 5) * (delta / 10)
+
+    def classificar_fase_respiratoria(pH):
+        if pH < 7.30 or pH > 7.50:
+            return "aguda"
+        elif 7.35 <= pH <= 7.45:
+            return "crônica"
+        return "intermediária"
     AG = Na - (Cl + HCO3)
     AG_txt = f"Anion gap: {AG:.1f} mEq/L"
     if albumina:
@@ -137,13 +150,16 @@ def avaliar_disturbio_acido_base():
         if abs(pCO2 - pCO2_esp) > 5:
             resultado.append("Compensação inadequada: considerar distúrbio misto ou triplo")
     elif "respiratória" in ' '.join(disturbios):
-        delta_pco2 = abs(pCO2 - 40)
+        fase = classificar_fase_respiratoria(pH)
         if "acidose" in ' '.join(disturbios):
-            if delta_pco2 <= 10:
-                hco3_esp = 24 + 1 * delta_pco2
-            else:
-                hco3_esp = 24 + 3.5 * delta_pco2 / 10
-            resultado.append(f"HCO3 esperado: {hco3_esp:.1f} mEq/L")
+            hco3_esp = compensacao_respiratoria(pCO2, "acidose", fase)
+            explicar(f"HCO3 esperado em acidose respiratória {fase} = fórmula clássica")
+        elif "alcalose" in ' '.join(disturbios):
+            hco3_esp = compensacao_respiratoria(pCO2, "alcalose", fase)
+            explicar(f"HCO3 esperado em alcalose respiratória {fase} = fórmula clássica")
+        resultado.append(f"HCO3 esperado ({fase}): {hco3_esp:.1f} mEq/L")
+        if abs(HCO3 - hco3_esp) > 3:
+            resultado.append("Compensação inadequada: considerar distúrbio misto ou crônico agudizado")
         elif "alcalose" in ' '.join(disturbios):
             if delta_pco2 <= 10:
                 hco3_esp = 24 - 2 * delta_pco2 / 10
@@ -162,10 +178,11 @@ def avaliar_disturbio_acido_base():
     delta_hco3 = 24 - HCO3
     if HCO3 != 0:
         delta_ratio = delta_ag / delta_hco3
-        resultado.append(f\"Delta gap: {delta_ag:.1f} | Delta-HCO3: {delta_hco3:.1f} | Delta-ratio: {delta_ratio:.2f}\")
-        explicar(\"Delta ratio = (AG - 12) / (24 - HCO3). Pode sugerir distúrbio adicional.\")
+        resultado.append(f"Delta gap: {delta_ag:.1f} | Delta-HCO3: {delta_hco3:.1f} | Delta-ratio: {delta_ratio:.2f}")
+        explicar("Delta ratio = (AG - 12) / (24 - HCO3). Pode sugerir distúrbio adicional.")
         if delta_ratio < 0.4:
-            resultado.append(\"Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)\")
+            if delta_ratio < 0.4:
+            resultado.append("Delta-ratio < 0.4: acidose hiperclorêmica pura (ex: diarreia)")\")
         elif delta_ratio < 0.8:
             resultado.append(\"Delta-ratio baixo: possível acidose mista\")
         elif delta_ratio <= 2.0:
